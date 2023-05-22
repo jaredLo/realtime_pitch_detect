@@ -6,15 +6,12 @@ from numpy import argmax, mean, diff, log
 
 
 def freq_from_autocorr(sig, fs):
-    # Calculate autocorrelation and discard negative lags
     corr = fftconvolve(sig, sig[::-1], mode="full")
     corr = corr[len(corr) // 2 :]
 
-    # Find the first low point
     d = diff(corr)
     start = np.nonzero(d > 0)[0][0]
 
-    # Find the next peak after the low point
     peak = argmax(corr[start:]) + start
     px, py = parabolic(corr, peak)
 
@@ -22,8 +19,6 @@ def freq_from_autocorr(sig, fs):
 
 
 def parabolic(f, x):
-    """Quadratic interpolation for estimating the true position of an
-    inter-sample maximum when nearby samples are known."""
     xv = 1 / 2.0 * (f[x - 1] - f[x + 1]) / (f[x - 1] - 2 * f[x] + f[x + 1]) + x
     yv = f[x] - 1 / 4.0 * (f[x - 1] - f[x + 1]) * (xv - x)
     return (xv, yv)
